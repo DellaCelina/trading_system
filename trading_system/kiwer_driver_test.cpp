@@ -21,6 +21,12 @@ struct KiwerDriverTester : public Test {
 
     std::unique_ptr<KiwerDriver> driver;
     KiwerAPI api;
+
+    static constexpr int PRICE_MULT_MAX = 9;
+    static constexpr int PRICE_MULT_RATIO = 100;
+
+    static constexpr int PRICE_MIN = 5000;
+    static constexpr int PRICE_MAX = PRICE_MIN + PRICE_MULT_MAX * PRICE_MULT_RATIO;
 };
 
 TEST_F(KiwerDriverTester, login2login) {
@@ -46,6 +52,6 @@ TEST_F(KiwerDriverTester, sell2sell) {
 
 TEST_F(KiwerDriverTester, getPrice2currentPrice) {
     auto price = driver->getPrice("code");
-    EXPECT_THAT(price, Ge(5000));
-    EXPECT_THAT(price, Le(5900));
+    EXPECT_THAT(price, Ge(PRICE_MIN));
+    EXPECT_THAT(price, Le(PRICE_MAX));
 }

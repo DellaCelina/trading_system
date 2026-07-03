@@ -21,6 +21,12 @@ struct NemoDriverTester : public Test {
 
     std::unique_ptr<NemoDriver> driver;
     NemoAPI api;
+
+    static constexpr int PRICE_MULT_MAX = 9;
+    static constexpr int PRICE_MULT_RATIO = 100;
+
+    static constexpr int PRICE_MIN = 5000;
+    static constexpr int PRICE_MAX = PRICE_MIN + PRICE_MULT_MAX * PRICE_MULT_RATIO;
 };
 
 TEST_F(NemoDriverTester, login2Certificate) {
@@ -46,6 +52,6 @@ TEST_F(NemoDriverTester, sell2SellingStock) {
 
 TEST_F(NemoDriverTester, getPrice2getMarketPrice) {
     auto price = driver->getPrice("code");
-    EXPECT_THAT(price, Ge(5000));
-    EXPECT_THAT(price, Le(5900));
+    EXPECT_THAT(price, Ge(PRICE_MIN));
+    EXPECT_THAT(price, Le(PRICE_MAX));
 }
