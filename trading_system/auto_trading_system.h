@@ -37,7 +37,7 @@ class AutoTradingSystem {
     //• 가격이내려가는추세라면, 사용자가설정한수량만큼주식을모두매도한다.
     //• 마지막에읽은가격으로매도한다
     void sellNiceTiming(const std::string& stockCode, int numberOfStock) {
-        std::vector<int> prices = readPricesThreeTimes(stockCode);
+        std::vector<int> prices = readPrices(stockCode, READ_COUNT);
         if (isDecreasing(prices)) {
             driver->sell(stockCode, prices.back(), numberOfStock);
         }
@@ -49,20 +49,23 @@ class AutoTradingSystem {
     }
 
 private:
-    std::vector<int> readPricesThreeTimes(const std::string& stockCode) {
+    std::vector<int> readPrices(const std::string& stockCode, int count) {
         std::vector<int> prices;
-        prices.push_back(driver->getPrice(stockCode));
-        timer->sleep(READ_INTERVAL_MS);
-        prices.push_back(driver->getPrice(stockCode));
-        timer->sleep(READ_INTERVAL_MS);
-        prices.push_back(driver->getPrice(stockCode));
+        for (int i = 0; i < count; i++) {
+            prices.push_back(driver->getPrice(stockCode));
+            if (i < count - 1) timer->sleep(READ_INTERVAL_MS);
+        }
         return prices;
     }
 
     bool isDecreasing(const std::vector<int>& prices) {
-        return prices[0] > prices[1] && prices[1] > prices[2];
+        for (int i = 0; i < prices.size() - 1; i++) {
+            if (prices[i] <= prices[i + 1]) return false;
+        }
+        return true;
     }
 
+    static constexpr int READ_COUNT = 3;
     static constexpr int READ_INTERVAL_MS = 200;
     StockBrokerDriverInterface* driver = nullptr;
     TimerInterface* timer = nullptr;
