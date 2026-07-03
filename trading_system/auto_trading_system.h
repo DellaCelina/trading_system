@@ -9,7 +9,6 @@
 
 class AutoTradingSystem {
 public:
-
     //증권사선택기능: selectStockBrocker( )
     void selectStockBroker(StockBrokerDriverInterface* driver) {
         this->driver = driver;
