@@ -58,7 +58,6 @@ TEST_F(KiwerAPITester, testSellOutput) {
 
 TEST_F(KiwerAPITester, testcurrentPriceOutput) {
     const string stockCode = "STOCK_CODE";
-    const int minute = 10;
 
     auto price = api.currentPrice(stockCode);
     EXPECT_THAT(price, Ge(5000));
