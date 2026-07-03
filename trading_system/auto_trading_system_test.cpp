@@ -1,6 +1,7 @@
 ﻿#include "gmock/gmock.h"
 
 #include <array>
+#include <format>
 
 #include "timer.h"
 #include "stock_broker_driver.h"
@@ -8,15 +9,18 @@
 
 using namespace testing;
 
+using std::string;
+using std::format;
+
 struct MockTimer : public TimerInterface {
     MOCK_METHOD(void, sleep, (int ms), (override));
 };
 
 struct MockStockBrokerDriver : public StockBrokerDriverInterface {
-    MOCK_METHOD(void, login, (const std::string& id, const std::string& pass), (override));
-    MOCK_METHOD(void, buy, (const std::string& stockCode, int price, int count), (override));
-    MOCK_METHOD(void, sell, (const std::string& stockCode, int price, int count), (override));
-    MOCK_METHOD(int, getPrice, (const std::string& stockCode), (override));
+    MOCK_METHOD(void, login, (const string& id, const string& pass), (override));
+    MOCK_METHOD(void, buy, (const string& stockCode, int price, int count), (override));
+    MOCK_METHOD(void, sell, (const string& stockCode, int price, int count), (override));
+    MOCK_METHOD(int, getPrice, (const string& stockCode), (override));
 };
 
 struct AutoTradingSystemTester : public Test {
@@ -25,82 +29,152 @@ struct AutoTradingSystemTester : public Test {
         tradingSystem.selectStockBroker(&driver);
     }
 
+    static constexpr int SLEEP_MS = 200;
+    static constexpr int READ_COUNT = 3;
+
     StrictMock<MockTimer> timer;
     StrictMock<MockStockBrokerDriver> driver;
     AutoTradingSystem tradingSystem;
 };
 
-TEST_F(AutoTradingSystemTester, buyNiceTimingSuccess) {
-    const std::string stockCode = "code";
-    const int totalMoney = 100;
-    const std::array<int, 3> prices = { 2, 3, 4 };
-    const int lastPrice = prices.back();
-    const int buyCount = totalMoney / lastPrice;
+struct BuyNiceTimingTestParam {
+    string stockCode;
+    int totalMoney;
+    std::array<int, AutoTradingSystemTester::READ_COUNT> prices;
+};
 
-    EXPECT_CALL(timer, sleep(200))
-        .Times(2);
-
-    auto&& priceExpect = EXPECT_CALL(driver, getPrice(stockCode));
-    priceExpect.Times(3);
-
-    for (auto price : prices) priceExpect.WillOnce(Return(price));
-
-    EXPECT_CALL(driver, buy(stockCode, lastPrice, buyCount))
-        .Times(1);
-
-    tradingSystem.buyNiceTiming(stockCode, totalMoney);
+std::ostream& operator<<(std::ostream& os, const  BuyNiceTimingTestParam& p) {
+    os << format("BuyNiceTimingTestParam: stockCode({}) totalMoney({}) ", p.stockCode, p.totalMoney);
+    os << "prices{ ";
+    for (auto& v : p.prices) os << v << ", ";
+    os << "}";
+    return os;
 }
 
-TEST_F(AutoTradingSystemTester, buyNiceTimingFail) {
-    const std::string stockCode = "code";
-    const int totalMoney = 100;
-    const std::array<int, 3> prices = { 4, 5, 5 };
-    const int lastPrice = prices.back();
+struct AutoTradingSystemBuyNiceTimingTester :
+    public AutoTradingSystemTester,
+    public WithParamInterface<BuyNiceTimingTestParam> {
+    void test(int buyCallCount) {
+        auto&& p = GetParam();
 
-    EXPECT_CALL(timer, sleep(200))
-        .Times(2);
+        const int lastPrice = p.prices.back();
+        const int buyCount = p.totalMoney / lastPrice;
 
-    auto&& priceExpect = EXPECT_CALL(driver, getPrice(stockCode));
-    priceExpect.Times(3);
+        EXPECT_CALL(timer, sleep(SLEEP_MS))
+            .Times(READ_COUNT - 1);
 
-    for (auto price : prices) priceExpect.WillOnce(Return(price));
+        auto&& priceExpect = EXPECT_CALL(driver, getPrice(p.stockCode));
+        priceExpect.Times(READ_COUNT);
 
-    tradingSystem.buyNiceTiming(stockCode, totalMoney);
+        for (auto price : p.prices) priceExpect.WillOnce(Return(price));
+
+        EXPECT_CALL(driver, buy(p.stockCode, lastPrice, buyCount))
+            .Times(buyCallCount);
+
+        tradingSystem.buyNiceTiming(p.stockCode, p.totalMoney);
+    }
+};
+
+struct AutoTradingSystemBuyNiceTimingSuccessTester : public AutoTradingSystemBuyNiceTimingTester {};
+TEST_P(AutoTradingSystemBuyNiceTimingSuccessTester, testSuccessCases) {
+    test(1);
 }
 
-TEST_F(AutoTradingSystemTester, sellNiceTimingSuccess) {
-    const std::string stockCode = "code";
-    const int numberOfStock = 100;
-    const std::array<int, 3> prices = { 4, 3, 2 };
-    const int lastPrice = prices.back();
+INSTANTIATE_TEST_SUITE_P(
+    AutoTradingSystemBuyNiceTimingSuccessTest,
+    AutoTradingSystemBuyNiceTimingSuccessTester,
+    Values(
+        BuyNiceTimingTestParam {
+            .stockCode = "STOCK_CODE",
+            .totalMoney = 100,
+            .prices = { 2, 3, 4 }
+        }
+    )
+);
 
-    EXPECT_CALL(timer, sleep(200))
-        .Times(2);
-
-    auto&& priceExpect = EXPECT_CALL(driver, getPrice(stockCode));
-    priceExpect.Times(3);
-
-    for (auto price : prices) priceExpect.WillOnce(Return(price));
-
-    EXPECT_CALL(driver, sell(stockCode, lastPrice, numberOfStock))
-        .Times(1);
-
-    tradingSystem.sellNiceTiming(stockCode, numberOfStock);
+struct AutoTradingSystemBuyNiceTimingFailTester : public AutoTradingSystemBuyNiceTimingTester {};
+TEST_P(AutoTradingSystemBuyNiceTimingFailTester, testFailCases) {
+    test(0);
 }
 
-TEST_F(AutoTradingSystemTester, sellNiceTimingFail) {
-    const std::string stockCode = "code";
-    const int numberOfStock = 100;
-    const std::array<int, 3> prices = { 4, 3, 3 };
-    const int lastPrice = prices.back();
+INSTANTIATE_TEST_SUITE_P(
+    AutoTradingSystemBuyNiceTimingFailTest,
+    AutoTradingSystemBuyNiceTimingFailTester,
+    Values(
+        BuyNiceTimingTestParam {
+            .stockCode = "STOCK_CODE",
+            .totalMoney = 100,
+            .prices = { 2, 3, 3 }
+        }
+    )
+);
 
-    EXPECT_CALL(timer, sleep(200))
-        .Times(2);
+struct SellNiceTimingTestParam {
+    string stockCode;
+    int numberOfStock;
+    std::array<int, AutoTradingSystemTester::READ_COUNT> prices;
+};
 
-    auto&& priceExpect = EXPECT_CALL(driver, getPrice(stockCode));
-    priceExpect.Times(3);
-
-    for (auto price : prices) priceExpect.WillOnce(Return(price));
-
-    tradingSystem.sellNiceTiming(stockCode, numberOfStock);
+std::ostream& operator<<(std::ostream& os, const  SellNiceTimingTestParam& p) {
+    os << format("SellNiceTimingTestParam: stockCode({}) totalMoney({}) ", p.stockCode, p.numberOfStock);
+    os << "prices{ ";
+    for (auto& v : p.prices) os << v << ", ";
+    os << "}";
+    return os;
 }
+
+struct AutoTradingSystemSellNiceTimingTester :
+    public AutoTradingSystemTester,
+    public WithParamInterface<SellNiceTimingTestParam> {
+    void test(int sellCallCount) {
+        auto&& p = GetParam();
+        const int lastPrice = p.prices.back();
+
+        EXPECT_CALL(timer, sleep(SLEEP_MS))
+            .Times(READ_COUNT - 1);
+
+        auto&& priceExpect = EXPECT_CALL(driver, getPrice(p.stockCode));
+        priceExpect.Times(READ_COUNT);
+
+        for (auto price : p.prices) priceExpect.WillOnce(Return(price));
+
+        EXPECT_CALL(driver, sell(p.stockCode, lastPrice, p.numberOfStock))
+            .Times(sellCallCount);
+
+        tradingSystem.sellNiceTiming(p.stockCode, p.numberOfStock);
+    }
+};
+
+struct AutoTradingSystemSellNiceTimingSuccessTester : public AutoTradingSystemSellNiceTimingTester {};
+TEST_P(AutoTradingSystemSellNiceTimingSuccessTester, testSuccessCases) {
+    test(1);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    AutoTradingSystemSellNiceTimingSuccessTest,
+    AutoTradingSystemSellNiceTimingSuccessTester,
+    Values(
+        SellNiceTimingTestParam {
+            .stockCode = "STOCK_CODE",
+            .numberOfStock = 100,
+            .prices = { 4, 3, 2 },
+        }
+    )
+);
+
+struct AutoTradingSystemSellNiceTimingFailTester : public AutoTradingSystemSellNiceTimingTester {};
+TEST_P(AutoTradingSystemSellNiceTimingFailTester, testFailCases) {
+    test(0);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    AutoTradingSystemSellNiceTimingFailTest,
+    AutoTradingSystemSellNiceTimingFailTester,
+    Values(
+        SellNiceTimingTestParam {
+            .stockCode = "STOCK_CODE",
+            .numberOfStock = 100,
+            .prices = { 4, 3, 3 },
+        }
+    )
+);
