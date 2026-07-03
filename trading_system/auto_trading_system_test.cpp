@@ -2,9 +2,12 @@
 
 #include <array>
 #include <format>
+#include <memory>
 
 #include "timer.h"
 #include "stock_broker_driver.h"
+#include "order_command.h"
+#include "order_scheduler.h"
 #include "auto_trading_system.h"
 
 using namespace testing;
@@ -21,6 +24,16 @@ struct MockStockBrokerDriver : public StockBrokerDriverInterface {
     MOCK_METHOD(void, buy, (const string& stockCode, int price, int count), (override));
     MOCK_METHOD(void, sell, (const string& stockCode, int price, int count), (override));
     MOCK_METHOD(int, getPrice, (const string& stockCode), (override));
+};
+
+struct MockOrderScheduler : public OrderSchedulerInterface {
+    MOCK_METHOD(void, scheduleOrder, (std::shared_ptr<IOrderCommand> order, long long executeAt), (override));
+    MOCK_METHOD(void, startScheduledOrder, (), (override));
+    MOCK_METHOD(void, flushScheduledOrder, (), (override));
+};
+
+struct MockOrderCommand : public IOrderCommand {
+    MOCK_METHOD(void, execute, (), (override));
 };
 
 struct AutoTradingSystemTester : public Test {
@@ -178,3 +191,36 @@ INSTANTIATE_TEST_SUITE_P(
         }
     )
 );
+
+struct AutoTradingSystemSchedulerTester : public Test {
+    void SetUp() override {
+        tradingSystem.setScheduler(&scheduler);
+    }
+
+    StrictMock<MockOrderScheduler> scheduler;
+    AutoTradingSystem tradingSystem;
+};
+
+TEST_F(AutoTradingSystemSchedulerTester, scheduleOrderDelegatesToScheduler) {
+    std::shared_ptr<IOrderCommand> order = std::make_shared<StrictMock<MockOrderCommand>>();
+    const long long executeAt = 1000;
+
+    EXPECT_CALL(scheduler, scheduleOrder(order, executeAt))
+        .Times(1);
+
+    tradingSystem.scheduleOrder(order, executeAt);
+}
+
+TEST_F(AutoTradingSystemSchedulerTester, startScheduledOrderDelegatesToScheduler) {
+    EXPECT_CALL(scheduler, startScheduledOrder())
+        .Times(1);
+
+    tradingSystem.startScheduledOrder();
+}
+
+TEST_F(AutoTradingSystemSchedulerTester, flushScheduledOrderDelegatesToScheduler) {
+    EXPECT_CALL(scheduler, flushScheduledOrder())
+        .Times(1);
+
+    tradingSystem.flushScheduledOrder();
+}

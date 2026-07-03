@@ -6,6 +6,8 @@
 
 #include "stock_broker_driver.h"
 #include "timer.h"
+#include "order_command.h"
+#include "order_scheduler.h"
 
 class AutoTradingSystem {
 public:
@@ -43,6 +45,26 @@ public:
         this->timer = timer;
     }
 
+    //Dependency Injection for scheduler
+    void setScheduler(OrderSchedulerInterface* scheduler) {
+        this->scheduler = scheduler;
+    }
+
+    //예약기능 : scheduleOrder(주문, 실행시각)
+    void scheduleOrder(std::shared_ptr<IOrderCommand> order, long long executeAt) {
+        scheduler->scheduleOrder(order, executeAt);
+    }
+
+    //시간이 도달한 예약 주문을 실행한다.
+    void startScheduledOrder() {
+        scheduler->startScheduledOrder();
+    }
+
+    //남은 예약 주문을 즉시 모두 실행한다.
+    void flushScheduledOrder() {
+        scheduler->flushScheduledOrder();
+    }
+
 private:
     std::vector<int> readPrices(const std::string& stockCode, int count) {
         std::vector<int> prices;
@@ -71,4 +93,5 @@ private:
     static constexpr int READ_INTERVAL_MS = 200;
     StockBrokerDriverInterface* driver = nullptr;
     TimerInterface* timer = nullptr;
+    OrderSchedulerInterface* scheduler = nullptr;
 };
