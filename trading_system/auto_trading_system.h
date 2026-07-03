@@ -1,13 +1,12 @@
 ﻿#pragma once
 
 #include <string>
-#include <memory>
 
 #include "stock_brocker_driver.h"
 #include "timer.h"
 
 class AutoTradingSystem {
-    public:
+public:
     //로그인기능: login(id, pass)
     void login(const std::string& id, const std::string& pass) {}
 
@@ -18,7 +17,9 @@ class AutoTradingSystem {
     void sell(const std::string& stockCode, int price, int count) {}
 
     //▪ 현재가확인기능: getPrice(종목코드)
-    int getPrice(const std::string& stockCode) {}
+    int getPrice(const std::string& stockCode) {
+        return 0;
+    }
 
     //증권사선택기능: selectStockBrocker( )
     void selectStockBroker(StockBrokerDriverInterface* driver) {}

@@ -27,6 +27,9 @@
     <ClCompile Include="kiwer_driver_test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="auto_trading_system_test.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="kiwer_api.h">
