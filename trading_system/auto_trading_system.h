@@ -6,6 +6,9 @@
 
 #include "stock_broker_driver.h"
 #include "timer.h"
+#include "order_scheduler.h"
+
+#include "timing_strategy.h"
 
 class AutoTradingSystem {
 public:
@@ -42,6 +45,48 @@ public:
     void setTimer(TimerInterface* timer) {
         this->timer = timer;
     }
+
+    // 추가 기능 #1
+    //예약기능: scheduleOrder(주문, 실행시각)
+    //• 주문을객체로만들어큐에저장한다.
+    //• 시간이도달하면자동으로실행된다.
+    //• 모든실행은자동으로로그를남긴다.
+    //사용예
+    //• 장시작직후자동매수
+    //• 특정시각자동매도
+    //Command 패턴으로 OCP 개발
+    //주문을IOrderCommand로객체화한다.
+    //BuyOrder / SellOrder 가 구현한다.
+    //• OrderScheduler 가 예약 큐를 관리
+    //특정시간혹은명령어시준비된명령들을자동실행
+    //실행전후로자동로깅
+
+    void setScheduler(OrderSchedulerInterface* scheduler) {}
+
+    // Add to scheduler
+    void scheduleOrder(time_t time, std::unique_ptr<OrderInterface>&& order) {} 
+
+    // 특정시간시 준비된 명령들을 자동실행 (시간 순서로 실행)
+    void startScheduledOrder() {
+        // sleep은 timer 활용
+    }
+
+    // 명령어시 준비된명령들을자동실행 (전체 실행)
+    void flushScheduledOrder() {}
+
+    // 추가기능 #2
+    // Auto Trading System – 매매 전략 교체 기능
+    //ITimingStrategy 인터페이스 도입
+    //• shouldBuy(priceHistory) : 매수 판단
+    //• shouldSell(priceHistory) : 매도 판단
+    //구현예시
+    //• RisingTrendStrategy : 3회 연속 상승 추세
+    //• MovingAverageStrategy : 이동평균선 돌파
+    //• BreakoutStrategy : 직전 N개 고점 돌파
+    //• Runtime 중 알고리즘 교체 가능한구조
+    //AutoTradingSystem 이 Strategy 를 주입받음 (DI
+
+    void setTimingStrategy(TimingStrategyInterface* strategy) {}
 
 private:
     std::vector<int> readPrices(const std::string& stockCode, int count) {
