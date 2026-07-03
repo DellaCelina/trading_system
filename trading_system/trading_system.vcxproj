@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="auto_trading_system_test.cpp" />
+    <ClCompile Include="kiwer_api_test.cpp" />
     <ClCompile Include="kiwer_driver_test.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="nemo_api_test.cpp" />
