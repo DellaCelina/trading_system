@@ -19,16 +19,11 @@ public:
     //• 가격이올라가는추세라면, 총금액을최대한사용하여최대수량만큼매수한다.
     //• 마지막에읽은가격으로매수한다.
     void buyNiceTiming(const std::string& stockCode, int totalMoney) {
-        int firstPrice = driver->getPrice(stockCode);
-        timer->sleep(200);
-        int secondPrice = driver->getPrice(stockCode);
-        timer->sleep(200);
-        int thirdPrice = driver->getPrice(stockCode);
-
-        bool isRising = firstPrice < secondPrice && secondPrice < thirdPrice;
-        if (isRising) {
-            int count = totalMoney / thirdPrice;
-            driver->buy(stockCode, thirdPrice, count);
+        std::vector<int> prices = readPrices(stockCode, READ_COUNT);
+        if (isIncreasing(prices)) {
+            int lastPrice = prices.back();
+            int count = totalMoney / lastPrice;
+            driver->buy(stockCode, lastPrice, count);
         }
     }
 
@@ -41,6 +36,11 @@ public:
         if (isDecreasing(prices)) {
             driver->sell(stockCode, prices.back(), numberOfStock);
         }
+    }
+
+    //Dependency Injection for timer
+    void setTimer(TimerInterface* timer) {
+        this->timer = timer;
     }
 
 private:
@@ -56,6 +56,13 @@ private:
     bool isDecreasing(const std::vector<int>& prices) {
         for (int i = 0; i < prices.size() - 1; i++) {
             if (prices[i] <= prices[i + 1]) return false;
+        }
+        return true;
+    }
+
+    bool isIncreasing(const std::vector<int>& prices) {
+        for (int i = 0; i < prices.size() - 1; i++) {
+            if (prices[i] >= prices[i + 1]) return false;
         }
         return true;
     }
