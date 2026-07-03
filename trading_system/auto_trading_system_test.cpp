@@ -1,9 +1,9 @@
-#include "gmock/gmock.h"
+﻿#include "gmock/gmock.h"
 
 #include <array>
 
 #include "timer.h"
-#include "stock_brocker_driver.h"
+#include "stock_broker_driver.h"
 #include "auto_trading_system.h"
 
 using namespace testing;

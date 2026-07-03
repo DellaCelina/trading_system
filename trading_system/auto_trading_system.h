@@ -4,23 +4,11 @@
 #include <memory>
 #include <vector>
 
-#include "stock_brocker_driver.h"
+#include "stock_broker_driver.h"
 #include "timer.h"
 
 class AutoTradingSystem {
-    public:
-    //로그인기능: login(id, pass)
-    void login(const std::string& id, const std::string& pass) {}
-
-    //▪ 매수기능: buy(종목코드, 가격, 수량)
-    void buy(const std::string& stockCode, int price, int count) {}
-
-    //▪ 매도기능: sell(종목코드, 가격, 수량)
-    void sell(const std::string& stockCode, int price, int count) {}
-
-    //▪ 현재가확인기능: getPrice(종목코드)
-    int getPrice(const std::string& stockCode) {}
-
+public:
     //증권사선택기능: selectStockBrocker( )
     void selectStockBroker(StockBrokerDriverInterface* driver) {
         this->driver = driver;
