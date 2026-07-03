@@ -47,5 +47,5 @@ TEST_F(NemoDriverTester, sell2SellingStock) {
 TEST_F(NemoDriverTester, getPrice2getMarketPrice) {
     auto price = driver->getPrice("code");
     EXPECT_THAT(price, Ge(5000));
-    EXPECT_THAT(price, Le(6000));
+    EXPECT_THAT(price, Le(5900));
 }
