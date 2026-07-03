@@ -1,6 +1,13 @@
 ﻿#pragma once
 
 struct OrderInterface {
-    virtual void BuyOrder() = 0;
-    virtual void SellOrder() = 0;
+    virtual void execute() = 0;
+};
+
+class BuyOrder : public OrderInterface {
+    void execute() override {}
+};
+
+class SellOrder : public OrderInterface {
+    void execute() override {}
 };
