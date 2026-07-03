@@ -47,5 +47,5 @@ TEST_F(KiwerDriverTester, sell2sell) {
 TEST_F(KiwerDriverTester, getPrice2currentPrice) {
     auto price = driver->getPrice("code");
     EXPECT_THAT(price, Ge(5000));
-    EXPECT_THAT(price, Le(6000));
+    EXPECT_THAT(price, Le(5900));
 }

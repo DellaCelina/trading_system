@@ -143,8 +143,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="auto_trading_system_test.cpp" />
+    <ClCompile Include="kiwer_api_test.cpp" />
     <ClCompile Include="kiwer_driver_test.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="nemo_api_test.cpp" />
     <ClCompile Include="nemo_driver_test.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -153,7 +155,7 @@
     <ClInclude Include="kiwer_driver.h" />
     <ClInclude Include="nemo_api.h" />
     <ClInclude Include="nemo_driver.h" />
-    <ClInclude Include="stock_brocker_driver.h" />
+    <ClInclude Include="stock_broker_driver.h" />
     <ClInclude Include="timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
