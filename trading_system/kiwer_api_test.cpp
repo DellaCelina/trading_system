@@ -4,64 +4,63 @@
 #include <numeric>
 #include <format>
 
-#include "nemo_api.h"
+#include "kiwer_api.h"
 
 using namespace testing;
 
 using std::string;
 using std::format;
 
-struct NemoAPITester : public Test {
+struct KiwerAPITester : public Test {
     string captureStdout(std::function<void()> f) {
         internal::CaptureStdout();
         f();
         return internal::GetCapturedStdout();
     }
 
-    NemoAPI api;
+    KiwerAPI api;
 };
 
-TEST_F(NemoAPITester, testCertificationOutput) {
+TEST_F(KiwerAPITester, testLoginOutput) {
     const string ID = "TEST_ID";
-    const string pass = "TEST_PASS";
-    const auto golden = format("[NEMO]{} login GOOD\n", ID);
+    const string password = "TEST_PASS";
+    const auto golden = format("{} login success\n", ID);
 
     auto output = captureStdout([&] {
-        api.certification(ID, pass);
+        api.login(ID, password);
         });
     EXPECT_EQ(output, golden);
 }
 
-TEST_F(NemoAPITester, testPurchasingStockOutput) {
+TEST_F(KiwerAPITester, testBuyOutput) {
     const string stockCode = "STOCK_CODE";
     const int price = 10;
     const int count = 20;
-    const auto golden = format("[NEMO]{} buy stock ( price : {} ) * ( count : {})\n", stockCode, price, count);
+    const auto golden = format("{} : Buy stock ( {} * {})\n", stockCode, price, count);
 
     auto output = captureStdout([&] {
-        api.purchasingStock(stockCode, price, count);
+        api.buy(stockCode, count, price);
         });
     EXPECT_EQ(output, golden);
 }
 
-TEST_F(NemoAPITester, testSellingStockOutput) {
+TEST_F(KiwerAPITester, testSellOutput) {
     const string stockCode = "STOCK_CODE";
     const int price = 10;
     const int count = 20;
-    const auto golden = format("[NEMO]{} sell stock ( price : {} ) * ( count : {})\n", stockCode, price, count);
+    const auto golden = format("{} : Sell stock ( {} * {})\n", stockCode, price, count);
 
     auto output = captureStdout([&] {
-        api.sellingStock(stockCode, price, count);
+        api.sell(stockCode, count, price);
         });
     EXPECT_EQ(output, golden);
 }
 
-TEST_F(NemoAPITester, testGetMarketPriceOutput) {
+TEST_F(KiwerAPITester, testcurrentPriceOutput) {
     const string stockCode = "STOCK_CODE";
     const int minute = 10;
 
-    auto price = api.getMarketPrice(stockCode, minute);
+    auto price = api.currentPrice(stockCode);
     EXPECT_THAT(price, Ge(5000));
     EXPECT_THAT(price, Le(5900));
 }
-
