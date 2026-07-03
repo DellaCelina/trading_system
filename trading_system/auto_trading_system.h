@@ -64,7 +64,7 @@ public:
     void setScheduler(OrderSchedulerInterface* scheduler) {}
 
     // Add to scheduler
-    void scheduleOrder(time_t time, std::unique_ptr<OrderInterface>&& order) {} 
+    void scheduleOrder(time_t time, OrderInterface* order) {} 
 
     // 특정시간시 준비된 명령들을 자동실행 (시간 순서로 실행)
     void startScheduledOrder() {

@@ -10,7 +10,7 @@
 //실행전후로자동로깅
 
 struct OrderSchedulerInterface {
-    virtual void add(time_t time, std::unique_ptr<OrderInterface>&& order) = 0;
+    virtual void add(time_t time, OrderInterface* order) = 0;
 
     // Queue의 첫번째 실행, 다음 order까지의 시간 return
     // 더이상 order가 없으면 return -1
@@ -19,6 +19,6 @@ struct OrderSchedulerInterface {
 
 class OrderScheduler : public OrderSchedulerInterface {
 public:
-    void add(time_t time, std::unique_ptr<OrderInterface>&& order) override {}
+    void add(time_t time, OrderInterface* order) override {}
     time_t execute() override {}
 };
