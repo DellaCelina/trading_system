@@ -18,7 +18,14 @@ public:
     //• 200ms 주기로 3회 가격을 읽고, 가격이올라가는추세인지파악한다.
     //• 가격이올라가는추세라면, 총금액을최대한사용하여최대수량만큼매수한다.
     //• 마지막에읽은가격으로매수한다.
-    void buyNiceTiming(const std::string& stockCode, int totalMoney) {}
+    void buyNiceTiming(const std::string& stockCode, int totalMoney) {
+        std::vector<int> prices = readPrices(stockCode, READ_COUNT);
+        if (isIncreasing(prices)) {
+            int lastPrice = prices.back();
+            int count = totalMoney / lastPrice;
+            driver->buy(stockCode, lastPrice, count);
+        }
+    }
 
     //▪ 기능2 : sellNiceTiming(종목, 수량)
     //• 200ms 주기로 3회 가격을 읽고, 가격이 내려가는추세인지파악한다.
@@ -49,6 +56,13 @@ private:
     bool isDecreasing(const std::vector<int>& prices) {
         for (int i = 0; i < prices.size() - 1; i++) {
             if (prices[i] <= prices[i + 1]) return false;
+        }
+        return true;
+    }
+
+    bool isIncreasing(const std::vector<int>& prices) {
+        for (int i = 0; i < prices.size() - 1; i++) {
+            if (prices[i] >= prices[i + 1]) return false;
         }
         return true;
     }
