@@ -41,7 +41,7 @@ TEST_F(NemoDriverTester, sell2SellingStock) {
     auto output = captureStdout([&] {
         driver->sell("code", 1, 2);
         });
-    EXPECT_EQ(output, "[NEMO]code sell stock ( price : 1 ) * (count : 2)\n");
+    EXPECT_EQ(output, "[NEMO]code sell stock ( price : 1 ) * ( count : 2)\n");
 }
 
 TEST_F(NemoDriverTester, getPrice2getMarketPrice) {
