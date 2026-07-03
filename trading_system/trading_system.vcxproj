@@ -155,8 +155,11 @@
     <ClInclude Include="kiwer_driver.h" />
     <ClInclude Include="nemo_api.h" />
     <ClInclude Include="nemo_driver.h" />
+    <ClInclude Include="order.h" />
+    <ClInclude Include="order_scheduler.h" />
     <ClInclude Include="stock_broker_driver.h" />
     <ClInclude Include="timer.h" />
+    <ClInclude Include="timing_strategy.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
