@@ -142,12 +142,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="kiwer_driver_test.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="nemo_driver_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="auto_trading_system.h" />
     <ClInclude Include="kiwer_api.h" />
+    <ClInclude Include="kiwer_driver.h" />
     <ClInclude Include="nemo_api.h" />
     <ClInclude Include="nemo_driver.h" />
     <ClInclude Include="stock_brocker_driver.h" />
