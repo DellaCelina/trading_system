@@ -67,3 +67,40 @@ TEST_F(AutoTradingSystemTester, buyNiceTimingFail) {
 
     tradingSystem.buyNiceTiming(stockCode, totalMoney);
 }
+
+TEST_F(AutoTradingSystemTester, sellNiceTimingSuccess) {
+    const std::string stockCode = "code";
+    const int numberOfStock = 100;
+    const std::array<int, 3> prices = { 4, 3, 2 };
+    const int lastPrice = prices.back();
+
+    EXPECT_CALL(timer, sleep(200))
+        .Times(2);
+
+    auto&& priceExpect = EXPECT_CALL(driver, getPrice(stockCode));
+    priceExpect.Times(3);
+
+    for (auto price : prices) priceExpect.WillOnce(Return(price));
+
+    EXPECT_CALL(driver, sell(stockCode, lastPrice, numberOfStock))
+        .Times(1);
+
+    tradingSystem.sellNiceTiming(stockCode, numberOfStock);
+}
+
+TEST_F(AutoTradingSystemTester, sellNiceTimingFail) {
+    const std::string stockCode = "code";
+    const int numberOfStock = 100;
+    const std::array<int, 3> prices = { 4, 3, 3 };
+    const int lastPrice = prices.back();
+
+    EXPECT_CALL(timer, sleep(200))
+        .Times(2);
+
+    auto&& priceExpect = EXPECT_CALL(driver, getPrice(stockCode));
+    priceExpect.Times(3);
+
+    for (auto price : prices) priceExpect.WillOnce(Return(price));
+
+    tradingSystem.sellNiceTiming(stockCode, numberOfStock);
+}

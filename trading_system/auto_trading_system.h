@@ -7,19 +7,8 @@
 
 class AutoTradingSystem {
 public:
-    //로그인기능: login(id, pass)
-    void login(const std::string& id, const std::string& pass) {}
-
-    //▪ 매수기능: buy(종목코드, 가격, 수량)
-    void buy(const std::string& stockCode, int price, int count) {}
-
-    //▪ 매도기능: sell(종목코드, 가격, 수량)
-    void sell(const std::string& stockCode, int price, int count) {}
-
-    //▪ 현재가확인기능: getPrice(종목코드)
-    int getPrice(const std::string& stockCode) {
-        return 0;
-    }
+    //Dependency Injection for timer
+    void setTimer(TimerInterface* timer) {}
 
     //증권사선택기능: selectStockBrocker( )
     void selectStockBroker(StockBrokerDriverInterface* driver) {}
@@ -35,9 +24,6 @@ public:
     //• 가격이내려가는추세라면, 사용자가설정한수량만큼주식을모두매도한다.
     //• 마지막에읽은가격으로매도한다
     void sellNiceTiming(const std::string& stockCode, int numberOfStock) {}
-
-    //Dependency Injection for timer
-    void setTimer(TimerInterface* timer) {}
 
 private:
     StockBrokerDriverInterface* driver = nullptr;
